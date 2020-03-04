@@ -4,10 +4,9 @@
   "description": "Robot control dashboard for FRC Team 703",
   "main": "src/main.js",
   "scripts": {
-    "start": "electron .",
-    "package-mac": "electron-packager . --platform=darwin --icon=images/icon.icns --out dist/",
-    "package-linux": "electron-packager . --platform=linux --icon=images/icon.png --out dist/",
-    "package-win": "electron-packager . --platform=win32 --icon=images/icon.ico --out dist/"
+    "start": "python -m pynetworktables2js --team 703",
+    "start-dev": "python -m pynetworktables2js",
+    "postinstall": "pip install pynetworktables2js"
   },
   "repository": {
     "type": "git",
@@ -22,7 +21,6 @@
   "dependencies": {
     "bulma": "^0.8.0",
     "bulma-extensions": "^6.2.7",
-    "chart.js": "^2.9.3",
     "wpilib-nt-client": "^1.7.1"
   },
   "devDependencies": {

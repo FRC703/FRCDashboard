@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 
 const electron = require("electron");
 const wpilib_NT = require("wpilib-nt-client");
+const { spawn } = require("child_process");
 const client = new wpilib_NT.Client();
 
 // The client will try to reconnect after 1 second
@@ -24,72 +25,86 @@ const ipc = electron.ipcMain;
  * @type {Electron.BrowserWindow}
  * */
 let mainWindow;
+let cameraWindow;
 
 let connectedFunc,
   ready = false;
 
-let clientDataListener = (key, val, valType, mesgType, id, flags) => {
-  if (val === "true" || val === "false") {
-    val = val === "true";
+var debug = false;
+
+for (var arg in process.argv) {
+  if (arg === "--debug") {
+    debug = true;
   }
-  mainWindow.webContents.send(mesgType, {
-    key,
-    val,
-    valType,
-    id,
-    flags
-  });
-};
+}
+
+// if (debug) {
+//   spawn("python", ["-m", "pynetworktables2js", debug ? "" : "--team 703"]);
+// }
+
+// let clientDataListener = (key, val, valType, mesgType, id, flags) => {
+//   if (val === "true" || val === "false") {
+//     val = val === "true";
+//   }
+//   mainWindow.webContents.send(mesgType, {
+//     key,
+//     val,
+//     valType,
+//     id,
+//     flags
+//   });
+// };
 function createWindow() {
   // Attempt to connect to the localhost
-  // client.start((con, err) => {
-  //   let connectFunc = () => {
-  //     console.log("Sending status");
-  //     mainWindow.webContents.send("connected", con);
+  if (process.platform !== "win32") {
+    console.log("Attempting to run on the simulator");
+    client.start((con, err) => {
+      let connectFunc = () => {
+        console.log("Sending status");
+        mainWindow.webContents.send("connected", con);
 
-  //     // Listens to the changes coming from the client
-  //   };
+        // Listens to the changes coming from the client
+      };
 
-  //   // If the Window is ready than send the connection status to it
-  //   if (ready) {
-  //     connectFunc();
-  //   }
-  //   connectedFunc = connectFunc;
-  // });
+      // If the Window is ready than send the connection status to it
+      if (ready) connectFunc();
+      if (con) connectedFunc = connectFunc;
+    }, simIP);
+  }
   // When the script starts running in the window set the ready variable
-  ipc.on("ready", (ev, mesg) => {
-    console.log("NetworkTables is ready");
-    ready = mainWindow != null;
+  // ipc.on("ready", (ev, mesg) => {
+  //   console.log("NetworkTables is ready");
+  //   ready = mainWindow != null;
 
-    // Remove old Listener
-    client.removeListener(clientDataListener);
+  //   // Remove old Listener
+  //   client.removeListener(clientDataListener);
 
-    // Add new listener with immediate callback
-    client.addListener(clientDataListener, true);
+  //   // Add new listener with immediate callback
+  //   client.addListener(clientDataListener, true);
 
-    // Send connection message to the window if if the message is ready
-    if (connectedFunc) connectedFunc();
-  });
+  //   // Send connection message to the window if if the message is ready
+  //   if (connectedFunc) connectedFunc();
+  // });
   // When the user chooses the address of the bot than try to connect
-  ipc.on("connect", (ev, address, port) => {
-    console.log(`Trying to connect to ${address}` + (port ? ":" + port : ""));
-    let callback = (connected, err) => {
-      console.log("Sending status");
-      client.connected = true;
-      mainWindow.webContents.send("connected", connected);
-    };
-    if (port) {
-      client.start(callback, address, port);
-    } else {
-      client.start(callback, address);
-    }
-  });
-  ipc.on("add", (ev, mesg) => {
-    client.Assign(mesg.val, mesg.key, (mesg.flags & 1) === 1);
-  });
-  ipc.on("update", (ev, mesg) => {
-    client.Update(mesg.id, mesg.val);
-  });
+  // ipc.on("connect", (ev, address, port) => {
+  //   console.log(`Trying to connect to ${address}` + (port ? ":" + port : ""));
+  //   let callback = (connected, err) => {
+  //     console.log("Sending status");
+  //     client.connected = true;
+  //     mainWindow.webContents.send("connected", connected);
+  //   };
+  //   if (port) {
+  //     client.start(callback, address, port);
+  //   } else {
+  //     client.start(callback, address);
+  //   }
+  // });
+  // ipc.on("add", (ev, mesg) => {
+  //   client.Assign(mesg.val, mesg.key, (mesg.flags & 1) === 1);
+  // });
+  // ipc.on("update", (ev, mesg) => {
+  //   client.Update(mesg.id, mesg.val);
+  // });
   ipc.on("windowError", (ev, error) => {
     console.log(error);
   });
@@ -101,11 +116,27 @@ function createWindow() {
     // It's best if the dashboard takes up as much space as possible without covering the DriverStation application.
     // The window is closed until the python server is ready
     show: false,
-    icon: __dirname + "/../images/icon.png",
+    icon: __dirname + "/../images/Phoenix2020.png",
     webPreferences: {
       nodeIntegration: true
     }
   });
+
+  let displays = electron.screen.getAllDisplays();
+  let externalDisplay = displays.find(display => {
+    return display.bounds.x !== 0 || display.bounds.y !== 0;
+  });
+  if (externalDisplay) {
+    cameraWindow = new BrowserWindow({
+      width: 1366,
+      height: 570,
+      show: false,
+      icon: __dirname + "/../images/Phoenix2020.png",
+      x: externalDisplay.bounds.x + 50,
+      y: externalDisplay.bounds.y + 50
+    });
+    cameraWindow.loadURL(`file://${__dirname}/camerawindow.html`);
+  }
   // Move window to top (left) of screen.
   mainWindow.setPosition(0, 0);
   // Load window.
@@ -118,8 +149,17 @@ function createWindow() {
     mainWindow.webContents.openDevTools();
   });
 
+  if (cameraWindow !== null) {
+    cameraWindow.once("ready-to-show", () => {
+      console.log("camera window is ready to be shown");
+      cameraWindow.show();
+      cameraWindow.maximize();
+      // cameraWindow.webContents.openDevTools();
+    });
+  }
+
   // Remove menu
-  mainWindow.setMenu(null);
+  // mainWindow.setMenu(null);
   // Emitted when the window is closed.
   mainWindow.on("closed", () => {
     console.log("main window closed");

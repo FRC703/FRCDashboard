@@ -3,13 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <title>Phoenix Dash</title>
-    <link href="../node_modules/bulma/css/bulma.min.css" rel="stylesheet" />
+    <link href="/node_modules/bulma/css/bulma.min.css" rel="stylesheet" />
     <link
-      href="../node_modules/bulma-extensions/dist/css/bulma-extensions.min.css"
+      href="/node_modules/bulma-extensions/dist/css/bulma-extensions.min.css"
       rel="stylesheet"
     />
     <!-- <link rel="stylesheet" href="../node_modules/chart.js/dist/Chart.min.css" /> -->
-    <link href="css/style.css" rel="stylesheet" />
+    <link href="src/css/style.css" rel="stylesheet" />
   </head>
 
   <body>
@@ -26,10 +26,33 @@
         <div id="connection-data" class="column">
           <div id="robot-state">Unknown state</div>
           <button class="button" id="connect-button">Connect</button>
-          <div id="game-data"></div>
+          <div id="game-data" class="tag">Game Data</div>
         </div>
         <div class="column">
-          <div></div>
+          <div>
+            Drivetrain Drive Speed: <span id="drivetrain-forward-speed"></span>
+          </div>
+          <input
+            id="drivetrain-forward-speed-target"
+            class="slider is-fullwidth"
+            step="1"
+            min="20"
+            max="100"
+            value="90"
+            type="range"
+          />
+          <div>
+            Drivetrain Turn Speed: <span id="drivetrain-turn-speed"></span>
+          </div>
+          <input
+            id="drivetrain-turn-speed-target"
+            class="slider is-fullwidth"
+            step="1"
+            min="20"
+            max="100"
+            value="90"
+            type="range"
+          />
         </div>
       </div>
       <div class="columns">
@@ -112,10 +135,10 @@
     <div class="driver-station">
       <h1>This area intentionally left empty for the driver station</h1>
     </div>
-    <script src="networktables/networktables.js"></script>
+    <script src="/networktables/networktables.js"></script>
     <!-- <script src="../node_modules/chart.js/dist/Chart.min.js"></script> -->
-    <script src="ui.js"></script>
-    <script src="connection.js"></script>
+    <script src="src/ui.js"></script>
+    <script src="src/connection.js"></script>
     <!-- <script src="charts.js"></script> -->
   </body>
 </html>
