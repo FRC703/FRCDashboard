@@ -25,8 +25,21 @@
         </div>
         <div id="connection-data" class="column">
           <div id="robot-state">Unknown state</div>
-          <button class="button" id="connect-button">Connect</button>
-          <div id="game-data" class="tag">Game Data</div>
+          <!-- <button class="button" id="connect-button">Connect</button> -->
+          <a
+            class="button is-link"
+            id="camera-button"
+            href="http://localhost:8888/camera/index.html"
+            target="_blank"
+            >Camera Window</a
+          >
+          <button
+            class="button is-warning"
+            onclick="document.getElementById('driver-station').classList.toggle('is-hidden')"
+          >
+            Toggle DS
+          </button>
+          <div id="game-data" class="tag is-large">Game Data</div>
         </div>
         <div class="column">
           <div>
@@ -132,13 +145,14 @@
         <button class="modal-close is-large" aria-label="close"></button>
       </div>
     </div>
-    <div class="driver-station">
+
+    <div class="driver-station" id="driver-station">
       <h1>This area intentionally left empty for the driver station</h1>
     </div>
     <script src="/networktables/networktables.js"></script>
     <!-- <script src="../node_modules/chart.js/dist/Chart.min.js"></script> -->
     <script src="src/ui.js"></script>
-    <script src="src/connection.js"></script>
+    <!-- <script src="src/connection.js"></script> -->
     <!-- <script src="charts.js"></script> -->
   </body>
 </html>
