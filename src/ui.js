@@ -2,6 +2,13 @@ var currentTime = 0;
 var targetShooterSpeed = 0;
 var rpmError = 300;
 
+const onRobotConnection = connected => {
+  var state = connected ? "Robot connected!" : "Robot disconnected.";
+  console.log(state);
+  document.getElementById("robot-state").innerHTML = state;
+};
+NetworkTables.addRobotConnectionListener(onRobotConnection, false);
+
 NetworkTables.addKeyListener("/SmartDashboard/robot/time", (key, value) => {
   // This is an example of how a dashboard could display the remaining time in a match.
   // We assume here that value is an integer representing the number of seconds left.
