@@ -43,7 +43,7 @@ body {
   flex-shrink: 0;
   flex-basis: 640px;
   min-height: 480px;
-  background: url(http://10.7.3.11:5800), url(assets/limelight.svg);
+  background: url(http://limelight.local:5800), url(assets/limelight.svg);
   box-shadow: 0 0 2px 1px var(--background), 0 0 8px 1px #7bff00;
   border-radius: 8px;
   background-repeat: no-repeat;
